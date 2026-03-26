@@ -1,28 +1,25 @@
-import { StyleSheet, Text, View } from "react-native";
+import Footer from "@/components/footer/footer";
+import Header from "@/components/header/header";
+import TimerArea from "@/components/timerArea/timerArea";
+import { StyleSheet } from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
 
 export default function Index() {
   return (
-    <View
-      style={styles.container}
-    >
-      <View>
-        <Text style={{fontSize: 60, color: '#eee'}}>STATS</Text>
-        <Text style={{fontSize: 60, color: '#eee'}}>CUBE</Text>
-        <Text style={{fontSize: 60, color: '#eee'}}>SETTINGS</Text>
-      </View>
-      <Text style={{fontSize: 60, color: '#eee'}}>SCRAMBLE</Text>
-      <Text style={{fontSize: 60, color: '#eee'}}>0:00.00</Text>
-      <Text style={{fontSize: 60, color: '#eee'}}>Avg etc</Text>
-      <Text style={{fontSize: 60, color: '#eee'}}>Scrambled cube</Text>
-    </View>
+    <SafeAreaView style={styles.container}>
+      <Header/>
+      <TimerArea/>
+      <Footer/>
+    </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    justifyContent: "center",
     alignItems: "center",
-    backgroundColor: '#111'
+    backgroundColor: '#111',
+    borderWidth: 1,
+    borderColor: '#4ab8eb',
   },
 })
