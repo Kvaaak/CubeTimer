@@ -1,16 +1,19 @@
 import Footer from "@/components/footer/footer";
 import Header from "@/components/header/header";
 import TimerArea from "@/components/timerArea/timerArea";
+import { ScrambleProvider } from "@/context/ScrambleContext";
 import { StyleSheet } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
 export default function Index() {
   return (
-    <SafeAreaView style={styles.container}>
-      <Header/>
-      <TimerArea/>
-      <Footer/>
-    </SafeAreaView>
+    <ScrambleProvider>
+      <SafeAreaView style={styles.container}>
+        <Header/>
+        <TimerArea/>
+        <Footer/>
+      </SafeAreaView>
+    </ScrambleProvider>
   );
 }
 

@@ -1,3 +1,4 @@
+import { useScramble } from '@/context/ScrambleContext'
 import React, { useEffect, useState } from 'react'
 import { Pressable, StyleSheet, Text, View } from 'react-native'
 
@@ -7,6 +8,7 @@ const Timer = () => {
   const [ready, setReady] = useState(false)
   const [holding, setHolding] = useState(false)
   const [startTime, setStartTime] = useState(0)
+  const {nextScramble} = useScramble()
 
   useEffect(() => {
     let interval: ReturnType<typeof setInterval>
@@ -25,14 +27,17 @@ const Timer = () => {
     }
     return () => clearInterval(interval)
   }, [running, startTime])
-  const handleLongPress = () => {
+  const prepareTimer = () => {
     setReady(true)
   }
-  const handlePressIn = () => {
-    setRunning(false)
+  const stopTimer = () => {
+    if (running) {
+      setRunning(false)
+      nextScramble()
+    }
     setHolding(true)
   }
-  const handlePressOut = () => {
+  const beginTimer = () => {
     setHolding(false)
     if (ready) {
     setStartTime(Date.now())
@@ -41,18 +46,18 @@ const Timer = () => {
     }
   }
   return (
-    <View style={{flex: 2, width: '100%'}}>
+    <View style={{flex: 1, width: '100%'}}>
       <Pressable 
-        onLongPress={handleLongPress} 
-        onPressIn={handlePressIn}
-        onPressOut={handlePressOut}
+        onLongPress={prepareTimer} 
+        onPressIn={stopTimer}
+        onPressOut={beginTimer}
         style={() => {
-          if (ready) return [styles.wrapper, { backgroundColor: '#309164'}]
+          if (ready || running) return [styles.wrapper, {backgroundColor: '#309164'}]
           if (holding) return [styles.wrapper, { backgroundColor: '#913030'}]
           return [styles.wrapper, { backgroundColor: '#111'}]
         }}
         >
-            <Text style={styles.timerText}>{time}</Text>
+        <Text style={styles.timerText}>{time}</Text>
       </Pressable>
     </View>
   )
@@ -65,10 +70,12 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    width: '100%'
+    width: '100%',
   },
   timerText: {
     fontSize: 60,
-    color: '#eee'
+    color: '#eee',
+    fontVariant: ['tabular-nums'],
+    transform: [{ translateY: -30}],
   }
 })
