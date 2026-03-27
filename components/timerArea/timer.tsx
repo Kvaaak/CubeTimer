@@ -16,7 +16,11 @@ const Timer = () => {
         const minutes = Math.floor(diff / 60000)
         const seconds = Math.floor((diff % 60000) / 1000)
         const centiseconds = Math.floor((diff % 1000) / 10)
-        setTime(`${minutes}:${seconds.toString().padStart(2, '0')}.${centiseconds.toString().padStart(2, '0')}`)
+        if (minutes > 0) {
+          setTime(`${minutes}:${seconds.toString().padStart(2, '0')}.${centiseconds.toString().padStart(2, '0')}`)
+        } else {
+          setTime(`${seconds}.${centiseconds.toString().padStart(2, '0')}`)
+        }
       }, 10)
     }
     return () => clearInterval(interval)
