@@ -31,6 +31,10 @@ export const saveSolve = (time: string, scramble: string) => {
   );
 };
 
+export const clearSolves = () => {
+  db.execSync('DELETE FROM solves;');
+};
+
 // Hae kaikki ratkaisut uusimmasta vanhimpaan
 export const getSolves = (): Solve[] => {
   return db.getAllSync(

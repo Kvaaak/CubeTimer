@@ -1,5 +1,6 @@
 import { useScramble } from '@/context/ScrambleContext'
-import { getSolves, saveSolve } from '@/database/database'
+import { saveSolve } from '@/database/database'
+import { useSolves } from '@/hooks/useSolves'
 import React, { useEffect, useState } from 'react'
 import { Pressable, StyleSheet, Text, View } from 'react-native'
 
@@ -15,6 +16,7 @@ const Timer = ({fullscreen, setFullscreen}: Props) => {
   const [holding, setHolding] = useState(false)
   const [startTime, setStartTime] = useState(0)
   const {scramble, nextScramble} = useScramble()
+  const { solves, bestTime, refreshSolves, formatTime } = useSolves()
 
   useEffect(() => {
     let interval: ReturnType<typeof setInterval>
@@ -41,11 +43,12 @@ const Timer = ({fullscreen, setFullscreen}: Props) => {
   const stopTimer = () => {
     if (running) {
       setRunning(false)
-      const solveTime = Date.now() - startTime
-      saveSolve(solveTime.toString(),scramble)
+      saveSolve(time,scramble)
+      setTime(time)
+      const newBest = refreshSolves()
       setFullscreen(false)
       nextScramble()
-      console.log(getSolves())
+      console.log(newBest)
     }
     setHolding(true)
   }
