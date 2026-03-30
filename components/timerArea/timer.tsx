@@ -33,28 +33,33 @@ const Timer = ({fullscreen, setFullscreen}: Props) => {
     }
     return () => clearInterval(interval)
   }, [running, startTime])
+
   const prepareTimer = () => {
     setReady(true)
   }
+
   const stopTimer = () => {
     if (running) {
       setRunning(false)
-      saveSolve(time,scramble)
+      const solveTime = Date.now() - startTime
+      saveSolve(solveTime.toString(),scramble)
       setFullscreen(false)
       nextScramble()
       console.log(getSolves())
     }
     setHolding(true)
   }
+
   const beginTimer = () => {
     setHolding(false)
     if (ready) {
-    setStartTime(Date.now())
-    setRunning(true)
-    setFullscreen(true)
-    setReady(false)
+      setStartTime(Date.now())
+      setRunning(true)
+      setFullscreen(true)
+      setReady(false)
     }
   }
+
   return (
     <View style={{flex: 1, width: '100%'}}>
       <Pressable 
