@@ -3,14 +3,21 @@ import { StyleSheet, View } from 'react-native'
 import Scramble from './scramble'
 import Timer from './timer'
 
-const TimerArea = () => {
+type Props = {
+  fullscreen: boolean
+  setFullscreen: React.Dispatch<React.SetStateAction<boolean>>
+}
+
+const TimerArea = ({fullscreen, setFullscreen}: Props) => {
   return (
     <View style={styles.container}>
-      <View style={styles.scramble}>
-        <Scramble/>
-      </View>
+      {!fullscreen && (
+        <View style={styles.scramble}>
+          <Scramble />
+        </View>
+      )}
       <View style={styles.timer}>
-        <Timer />
+        <Timer setFullscreen={setFullscreen} fullscreen={fullscreen}/>
       </View>
     </View>
   )

@@ -1,14 +1,20 @@
 import { useScramble } from '@/context/ScrambleContext'
+import { getSolves, saveSolve } from '@/database/database'
 import React, { useEffect, useState } from 'react'
 import { Pressable, StyleSheet, Text, View } from 'react-native'
 
-const Timer = () => {
+type Props = {
+  fullscreen: boolean
+  setFullscreen: React.Dispatch<React.SetStateAction<boolean>>
+}
+
+const Timer = ({fullscreen, setFullscreen}: Props) => {
   const [time, setTime] = useState('0.00')
   const [running, setRunning] = useState(false)
   const [ready, setReady] = useState(false)
   const [holding, setHolding] = useState(false)
   const [startTime, setStartTime] = useState(0)
-  const {nextScramble} = useScramble()
+  const {scramble, nextScramble} = useScramble()
 
   useEffect(() => {
     let interval: ReturnType<typeof setInterval>
@@ -33,7 +39,10 @@ const Timer = () => {
   const stopTimer = () => {
     if (running) {
       setRunning(false)
+      saveSolve(time,scramble)
+      setFullscreen(false)
       nextScramble()
+      console.log(getSolves())
     }
     setHolding(true)
   }
@@ -42,6 +51,7 @@ const Timer = () => {
     if (ready) {
     setStartTime(Date.now())
     setRunning(true)
+    setFullscreen(true)
     setReady(false)
     }
   }
@@ -57,7 +67,7 @@ const Timer = () => {
           return [styles.wrapper, { backgroundColor: '#111'}]
         }}
         >
-        <Text style={styles.timerText}>{time}</Text>
+        <Text style={[styles.timerText, {transform: [{ translateY: fullscreen ? 0 : -35 }]}]}>{time}</Text>
       </Pressable>
     </View>
   )
@@ -76,6 +86,5 @@ const styles = StyleSheet.create({
     fontSize: 60,
     color: '#eee',
     fontVariant: ['tabular-nums'],
-    transform: [{ translateY: -30}],
   }
 })
