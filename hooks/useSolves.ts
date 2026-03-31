@@ -3,6 +3,7 @@ import { useEffect, useState } from 'react';
 
 // Muuntaa "mm:ss.SS" string → numero sekunneissa
 const parseTime = (timeStr: string) => {
+  if (timeStr === 'DNF') return Infinity; // ei vaikuta bestTimeen
   const parts = timeStr.split(':');
   if (parts.length === 2) {
     const minutes = parseInt(parts[0], 10);

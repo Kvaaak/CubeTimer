@@ -36,7 +36,9 @@ export const deleteSolve = (id: number) => {
   db.runSync('DELETE FROM solves WHERE id = ?;', [id]);
 };
 
-
+export const updateSolveTime = (id: number, newTime: string) => {
+  db.runSync('UPDATE solves SET time = ? WHERE id = ?;', [newTime, id]);
+};
 
 // Poista kaikki solvet
 export const clearSolves = () => {

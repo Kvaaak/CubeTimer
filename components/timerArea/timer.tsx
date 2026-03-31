@@ -1,5 +1,5 @@
 import { useScramble } from '@/context/ScrambleContext'
-import { deleteSolve, getSolves, saveSolve } from '@/database/database'
+import { deleteSolve, getSolves, saveSolve, updateSolveTime } from '@/database/database'
 import { useSolves } from '@/hooks/useSolves'
 import React, { useEffect, useState } from 'react'
 import { Pressable, StyleSheet, Text, View } from 'react-native'
@@ -16,7 +16,8 @@ const Timer = ({fullscreen, setFullscreen}: Props) => {
   const [holding, setHolding] = useState(false)
   const [startTime, setStartTime] = useState(0)
   const {scramble, nextScramble} = useScramble()
-  const [lastSolveId, setLastSolveId] = useState<number | null>(null);
+  const [lastSolveId, setLastSolveId] = useState<number | null>(null)
+  const [plusTwoActive, setPlusTwoActive] = useState(false);
   const { solves, bestTime, refreshSolves, formatTime } = useSolves()
 
   useEffect(() => {
@@ -47,6 +48,7 @@ const Timer = ({fullscreen, setFullscreen}: Props) => {
       saveSolve(time,scramble)
       setTime(time)
       const newBest = refreshSolves()
+      setPlusTwoActive(false); // reset +2
       const latest = getSolves()[0]
       setLastSolveId(latest?.id ?? null)
       setFullscreen(false)
@@ -70,18 +72,33 @@ const Timer = ({fullscreen, setFullscreen}: Props) => {
   }
 
   const deleteTime = () => {
-      if (!lastSolveId) return
-      deleteSolve(lastSolveId)
-      setLastSolveId(null)
-      refreshSolves()
+    if (!lastSolveId) return
+    deleteSolve(lastSolveId)
+    setLastSolveId(null)
+    refreshSolves()
   }
 
   const addTwo = () => {
-
+    if (!lastSolveId) return
+    const last = solves.find(s => s.id === lastSolveId)
+    if (!last) return
+    let newTimeSec = last.timeSec
+    if (!plusTwoActive) {
+      newTimeSec += 2
+    } else {
+      newTimeSec -= 2
+    }
+    const newTimeStr = formatTime(newTimeSec)
+    updateSolveTime(last.id, newTimeStr)
+    setPlusTwoActive(!plusTwoActive)
+    refreshSolves()
   }
 
   const didNotFinish = () => {
-
+    if (!lastSolveId) return
+    const last = solves[0]
+    updateSolveTime(last.id, 'DNF')
+    refreshSolves()
   }
 
   return (
@@ -100,18 +117,27 @@ const Timer = ({fullscreen, setFullscreen}: Props) => {
       </Pressable>
       {!fullscreen && (
         <View style={styles.buttonWrapper}>
-          <Pressable style={styles.buttonArea}>
-            <Text>
+          <Pressable onPress={addTwo} style={({ pressed }) => [
+            styles.buttonArea,
+            { opacity: pressed ? 0.5 : 1 }
+          ]}>
+            <Text style={styles.buttonText}>
               +2
             </Text>
           </Pressable>
-          <Pressable style={styles.buttonArea}>
-            <Text>
+          <Pressable onPress={didNotFinish} style={({ pressed }) => [
+            styles.buttonArea,
+            { opacity: pressed ? 0.5 : 1 }
+          ]}>
+            <Text style={styles.buttonText}>
               DNF
             </Text>
           </Pressable>
-          <Pressable style={styles.buttonArea} onPress={deleteTime}>
-            <Text>
+          <Pressable onPress={deleteTime} style={({ pressed }) => [
+            styles.buttonArea,
+            { opacity: pressed ? 0.5 : 1 }
+          ]}>
+            <Text style={styles.buttonText}>
               X
             </Text>
           </Pressable>
@@ -136,7 +162,8 @@ const styles = StyleSheet.create({
     fontVariant: ['tabular-nums'],
   },
   buttonArea: {
-    backgroundColor: '#888',
+    borderColor: '#888',
+    borderWidth: 1,
     width: 40,
     borderRadius: 6,
     aspectRatio: 1,
@@ -152,6 +179,6 @@ const styles = StyleSheet.create({
     gap: 10,
   },
   buttonText: {
-
+    color: '#eee'
   }
 })
