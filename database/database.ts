@@ -31,6 +31,14 @@ export const saveSolve = (time: string, scramble: string) => {
   );
 };
 
+// Poista viimeisin ratkaisu
+export const deleteSolve = (id: number) => {
+  db.runSync('DELETE FROM solves WHERE id = ?;', [id]);
+};
+
+
+
+// Poista kaikki solvet
 export const clearSolves = () => {
   db.execSync('DELETE FROM solves;');
 };

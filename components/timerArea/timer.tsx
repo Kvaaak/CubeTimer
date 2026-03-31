@@ -1,5 +1,5 @@
 import { useScramble } from '@/context/ScrambleContext'
-import { saveSolve } from '@/database/database'
+import { deleteSolve, getSolves, saveSolve } from '@/database/database'
 import { useSolves } from '@/hooks/useSolves'
 import React, { useEffect, useState } from 'react'
 import { Pressable, StyleSheet, Text, View } from 'react-native'
@@ -16,6 +16,7 @@ const Timer = ({fullscreen, setFullscreen}: Props) => {
   const [holding, setHolding] = useState(false)
   const [startTime, setStartTime] = useState(0)
   const {scramble, nextScramble} = useScramble()
+  const [lastSolveId, setLastSolveId] = useState<number | null>(null);
   const { solves, bestTime, refreshSolves, formatTime } = useSolves()
 
   useEffect(() => {
@@ -46,9 +47,14 @@ const Timer = ({fullscreen, setFullscreen}: Props) => {
       saveSolve(time,scramble)
       setTime(time)
       const newBest = refreshSolves()
+      const latest = getSolves()[0]
+      setLastSolveId(latest?.id ?? null)
       setFullscreen(false)
       nextScramble()
       console.log(newBest)
+      console.log(
+        getSolves().map(s => ({ id: s.id, time: s.time }))
+      )
     }
     setHolding(true)
   }
@@ -61,6 +67,21 @@ const Timer = ({fullscreen, setFullscreen}: Props) => {
       setFullscreen(true)
       setReady(false)
     }
+  }
+
+  const deleteTime = () => {
+      if (!lastSolveId) return
+      deleteSolve(lastSolveId)
+      setLastSolveId(null)
+      refreshSolves()
+  }
+
+  const addTwo = () => {
+
+  }
+
+  const didNotFinish = () => {
+
   }
 
   return (
@@ -77,6 +98,25 @@ const Timer = ({fullscreen, setFullscreen}: Props) => {
         >
         <Text style={[styles.timerText, {transform: [{ translateY: fullscreen ? 0 : -35 }]}]}>{time}</Text>
       </Pressable>
+      {!fullscreen && (
+        <View style={styles.buttonWrapper}>
+          <Pressable style={styles.buttonArea}>
+            <Text>
+              +2
+            </Text>
+          </Pressable>
+          <Pressable style={styles.buttonArea}>
+            <Text>
+              DNF
+            </Text>
+          </Pressable>
+          <Pressable style={styles.buttonArea} onPress={deleteTime}>
+            <Text>
+              X
+            </Text>
+          </Pressable>
+        </View>
+      )}
     </View>
   )
 }
@@ -94,5 +134,24 @@ const styles = StyleSheet.create({
     fontSize: 60,
     color: '#eee',
     fontVariant: ['tabular-nums'],
+  },
+  buttonArea: {
+    backgroundColor: '#888',
+    width: 40,
+    borderRadius: 6,
+    aspectRatio: 1,
+    justifyContent: 'center',
+    alignItems: 'center'
+  },
+  buttonWrapper: {
+    position: 'absolute',
+    bottom: 170,
+    width: '100%',
+    flexDirection: 'row',
+    justifyContent: 'center',
+    gap: 10,
+  },
+  buttonText: {
+
   }
 })
