@@ -1,5 +1,5 @@
 import { useScramble } from '@/context/ScrambleContext'
-import { deleteSolve, getSolves, saveSolve, updateSolveTime } from '@/database/database'
+import { deleteSolve, getSolves, saveSolve, updateSolvePenalty } from '@/database/database'
 import { useSolves } from '@/hooks/useSolves'
 import React, { useEffect, useState } from 'react'
 import { Alert, Pressable, StyleSheet, Text, View } from 'react-native'
@@ -21,7 +21,7 @@ const Timer = ({fullscreen, setFullscreen}: Props) => {
   const {scramble, nextScramble} = useScramble()
   const [lastSolveId, setLastSolveId] = useState<number | null>(null)
   const [penalty, setPenalty] = useState<Penalty>('none')
-  const { solves, bestTime, refreshSolves, formatTime, parseTime } = useSolves()
+  const { solves, bestTime, refreshSolves } = useSolves()
 
   useEffect(() => {
     let interval: ReturnType<typeof setInterval>
@@ -50,31 +50,39 @@ const Timer = ({fullscreen, setFullscreen}: Props) => {
       setRunning(false)
       saveSolve(time, scramble)
 
-      const newBest = refreshSolves()
+      const beforeBest = bestTime
+      refreshSolves()
       const latest = getSolves()[0]
       setLastSolveId(latest?.id ?? null)
+      setPenalty(latest?.penalty ?? 'none')
 
-      if (newBest !== null && latest) {
-        const latestTimeSec = parseTime(latest.time)
-        if (latestTimeSec === newBest) {
+      if (latest) {
+        let latestTime = latest.time
+
+        if (latest.penalty === '+2') latestTime += 2
+        if (latest.penalty === 'DNF') latestTime = Infinity
+
+        if (
+          latestTime !== Infinity &&
+          (beforeBest === null || latestTime < beforeBest)
+        ) {
           Toast.show({
             type: 'success',
             text1: 'New Best Time!',
-            text2: latest.time,
+            text2: time,
             position: 'bottom',
             bottomOffset: 200,
           })
         }
       }
 
-      setTime(time)
       setPenalty('none')
       setFullscreen(false)
       nextScramble()
     }
+
     setHolding(true)
   }
-
   const beginTimer = () => {
     setHolding(false)
     if (ready) {
@@ -146,19 +154,9 @@ const Timer = ({fullscreen, setFullscreen}: Props) => {
   }
 
   const applyPenalty = (solve: any, newPenalty: Penalty) => {
-    let newTimeStr: string
-
-    if (newPenalty === 'DNF') {
-      newTimeStr = 'DNF'
-    } else if (newPenalty === '+2') {
-      newTimeStr = formatTime(solve.timeSec + 2)
-    } else {
-      newTimeStr = formatTime(solve.timeSec)
-    }
-
-    updateSolveTime(solve.id, newTimeStr)
-    setPenalty(newPenalty)
+    updateSolvePenalty(solve.id, newPenalty)
     refreshSolves()
+    setPenalty(newPenalty)
   }
 
   return (
@@ -170,7 +168,7 @@ const Timer = ({fullscreen, setFullscreen}: Props) => {
         style={() => {
           if (ready || running) return [styles.wrapper, {backgroundColor: '#309164'}]
           if (holding) return [styles.wrapper, { backgroundColor: '#913030'}]
-          return [styles.wrapper, { backgroundColor: '#111'}]
+          return [styles.wrapper, { backgroundColor: '#306291'}]
         }}
         >
         <Text style={[styles.timerText, {transform: [{ translateY: fullscreen ? 0 : -35 }]}]}>{time}</Text>
@@ -181,7 +179,7 @@ const Timer = ({fullscreen, setFullscreen}: Props) => {
             styles.buttonArea,
             { 
               opacity: pressed ? 0.5 : 1 ,
-              backgroundColor: penalty === '+2' ? '#309164' : 'transparent'
+              backgroundColor: penalty === '+2' ? '#309164' : '#204f7cb2'
             }
           ]}>
             <Text style={styles.buttonText}>
@@ -192,7 +190,7 @@ const Timer = ({fullscreen, setFullscreen}: Props) => {
             styles.buttonArea,
             { 
               opacity: pressed ? 0.5 : 1,
-              backgroundColor: penalty === 'DNF' ? '#913030' : 'transparent'
+              backgroundColor: penalty === 'DNF' ? '#913030' : '#204f7cb2'
              }
           ]}>
             <Text style={styles.buttonText}>
@@ -201,7 +199,10 @@ const Timer = ({fullscreen, setFullscreen}: Props) => {
           </Pressable>
           <Pressable onPress={deleteTime} style={({ pressed }) => [
             styles.buttonArea,
-            { opacity: pressed ? 0.5 : 1 }
+            { 
+              opacity: pressed ? 0.5 : 1,
+              backgroundColor: '#204f7cb2'
+            }
           ]}>
             <Text style={styles.buttonText}>
               X
@@ -228,7 +229,7 @@ const styles = StyleSheet.create({
     fontVariant: ['tabular-nums'],
   },
   buttonArea: {
-    borderColor: '#888',
+    borderColor: '#20507c',
     borderWidth: 1,
     width: 40,
     borderRadius: 6,
