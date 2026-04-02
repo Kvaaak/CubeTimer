@@ -6,6 +6,7 @@ import { initDB } from "@/database/database";
 import { useEffect, useState } from "react";
 import { StyleSheet } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
+import Toast from 'react-native-toast-message';
 
 export default function Index() {
   useEffect(() => {
@@ -25,6 +26,7 @@ export default function Index() {
       />
 
       {!fullscreen && <Footer />}
+      <Toast/>
     </SafeAreaView>
   </ScrambleProvider>
   )

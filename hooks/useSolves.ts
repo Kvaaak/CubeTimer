@@ -45,5 +45,5 @@ export const useSolves = () => {
     refreshSolves(); // initial load
   }, []);
 
-  return { solves, bestTime, formatTime, refreshSolves };
+  return { solves, bestTime, formatTime, refreshSolves, parseTime };
 };
