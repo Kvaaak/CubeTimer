@@ -37,7 +37,7 @@ const styles = StyleSheet.create({
   timer: {
     flex: 1,
     justifyContent: 'center',
-    alignItems: 'center',
+    alignItems: 'flex-end',
     width: '100%',
-  }
+  },
 })
