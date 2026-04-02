@@ -1,53 +1,65 @@
-import * as SQLite from 'expo-sqlite';
+import * as SQLite from 'expo-sqlite'
 
-// Tyyppi ratkaisu-riville
+export type Penalty = 'none' | '+2' | 'DNF'
+
 export type Solve = {
-  id: number;
-  time: string;
-  scramble: string;
-  created_at: number;
-};
+  id: number
+  time: number
+  scramble: string
+  penalty: Penalty
+  created_at: number
+}
 
-// SQLite database (TypeScript ei valita, koska käytetään any)
-const db: any = SQLite.openDatabaseSync('times.db');
+const db: any = SQLite.openDatabaseSync('times.db')
 
-// Alusta tietokanta ja luo taulu jos sitä ei ole
 export const initDB = () => {
   db.execSync(`
     CREATE TABLE IF NOT EXISTS solves (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
-      time TEXT,
+      time REAL,
       scramble TEXT,
+      penalty TEXT DEFAULT 'none',
       created_at INTEGER
     );
-  `);
-};
+  `)
+}
 
-// Tallenna uusi ratkaisu
-export const saveSolve = (time: string, scramble: string) => {
+const parseTime = (timeStr: string): number => {
+  const parts = timeStr.split(':')
+  if (parts.length === 2) {
+    const minutes = parseInt(parts[0], 10)
+    const seconds = parseFloat(parts[1])
+    return minutes * 60 + seconds
+  }
+  return parseFloat(timeStr)
+}
+
+export const saveSolve = (timeStr: string, scramble: string) => {
+  const time = parseTime(timeStr)
+
   db.runSync(
-    'INSERT INTO solves (time, scramble, created_at) VALUES (?, ?, ?);',
-    [time, scramble, Date.now()]
-  );
-};
+    'INSERT INTO solves (time, scramble, penalty, created_at) VALUES (?, ?, ?, ?);',
+    [time, scramble, 'none', Date.now()]
+  )
+}
 
-// Poista viimeisin ratkaisu
 export const deleteSolve = (id: number) => {
-  db.runSync('DELETE FROM solves WHERE id = ?;', [id]);
-};
+  db.runSync('DELETE FROM solves WHERE id = ?;', [id])
+}
 
-export const updateSolveTime = (id: number, newTime: string) => {
-  db.runSync('UPDATE solves SET time = ? WHERE id = ?;', [newTime, id]);
-};
+export const updateSolvePenalty = (id: number, penalty: Penalty) => {
+  db.runSync(
+    'UPDATE solves SET penalty = ? WHERE id = ?;',
+    [penalty, id]
+  )
+}
 
-// Poista kaikki solvet
 export const clearSolves = () => {
-  db.execSync('DELETE FROM solves;');
-};
+  db.execSync('DELETE FROM solves;')
+}
 
-// Hae kaikki ratkaisut uusimmasta vanhimpaan
 export const getSolves = (): Solve[] => {
   return db.getAllSync(
     'SELECT * FROM solves ORDER BY created_at DESC;'
-  ) as Solve[];
-};
+  ) as Solve[]
+}

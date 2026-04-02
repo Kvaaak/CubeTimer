@@ -31,8 +31,6 @@ export default Header
 const styles = StyleSheet.create({
   card: {
     flexDirection: 'row',
-    borderWidth: 1,
-    borderColor: '#45ce8e',
     justifyContent: 'space-between',
     alignItems: 'center',
     width: '100%',
@@ -47,7 +45,8 @@ const styles = StyleSheet.create({
     aspectRatio: 1,
     borderWidth: 1,
     borderRadius: 12,
-    borderColor: '#db8282',
+    borderColor: '#20507c',
+    backgroundColor: '#204f7cb2'
   },
   
 })

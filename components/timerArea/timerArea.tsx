@@ -6,9 +6,10 @@ import Timer from './timer'
 type Props = {
   fullscreen: boolean
   setFullscreen: React.Dispatch<React.SetStateAction<boolean>>
+  setBgColor: React.Dispatch<React.SetStateAction<string>>
 }
 
-const TimerArea = ({fullscreen, setFullscreen}: Props) => {
+const TimerArea = ({fullscreen, setFullscreen, setBgColor}: Props) => {
   return (
     <View style={styles.container}>
       {!fullscreen && (
@@ -17,7 +18,7 @@ const TimerArea = ({fullscreen, setFullscreen}: Props) => {
         </View>
       )}
       <View style={styles.timer}>
-        <Timer setFullscreen={setFullscreen} fullscreen={fullscreen}/>
+        <Timer setFullscreen={setFullscreen} fullscreen={fullscreen} setBgColor={setBgColor} />
       </View>
     </View>
   )

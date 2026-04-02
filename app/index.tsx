@@ -9,20 +9,23 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import Toast from 'react-native-toast-message';
 
 export default function Index() {
+
   useEffect(() => {
     initDB()
   }, [])
   
   const [fullscreen, setFullscreen] = useState(false)
+  const [bgColor, setBgColor] = useState('#306291')
 
   return (
   <ScrambleProvider>
-    <SafeAreaView style={styles.container}>
+    <SafeAreaView style={[styles.container, { backgroundColor: bgColor }]}>
       {!fullscreen && <Header />}
 
       <TimerArea 
         fullscreen={fullscreen} 
-        setFullscreen={setFullscreen} 
+        setFullscreen={setFullscreen}
+        setBgColor={setBgColor} 
       />
 
       {!fullscreen && <Footer />}
@@ -36,8 +39,5 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     alignItems: "center",
-    backgroundColor: '#111',
-    borderWidth: 1,
-    borderColor: '#4ab8eb',
   },
 })
