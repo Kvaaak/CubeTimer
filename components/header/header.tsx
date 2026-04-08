@@ -1,14 +1,19 @@
+import { useRouter } from 'expo-router'
 import React from 'react'
 import { Pressable, StyleSheet, Text, View } from 'react-native'
 
 const Header = () => {
+  const router = useRouter()
   return (
         <View style={styles.card}>
-          <Pressable style={({ pressed }) => [
-            styles.button,
-            { opacity: pressed ? 0.5 : 1 }
-          ]}>
-            <Text style={{fontSize: 16, color: '#eee'}}>STATS</Text>
+          <Pressable 
+            onPress={()=> router.replace("/(stats)/statsScreen")} 
+            style= {({ pressed }) => [
+              styles.button,
+              { opacity: pressed ? 0.5 : 1 }
+            ]}
+          >
+              <Text style={{fontSize: 16, color: '#eee'}}>STATS</Text>
           </Pressable>
           <Pressable style={({ pressed }) => [
             styles.button,

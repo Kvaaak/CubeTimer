@@ -1,7 +1,6 @@
 import Footer from "@/components/footer/footer";
 import Header from "@/components/header/header";
 import TimerArea from "@/components/timerArea/timerArea";
-import { ScrambleProvider } from "@/context/ScrambleContext";
 import { initDB } from "@/database/database";
 import { useEffect, useState } from "react";
 import { StyleSheet } from "react-native";
@@ -18,7 +17,6 @@ export default function Index() {
   const [bgColor, setBgColor] = useState('#306291')
 
   return (
-  <ScrambleProvider>
     <SafeAreaView style={[styles.container, { backgroundColor: bgColor }]}>
       {!fullscreen && <Header />}
 
@@ -31,7 +29,6 @@ export default function Index() {
       {!fullscreen && <Footer />}
       <Toast/>
     </SafeAreaView>
-  </ScrambleProvider>
   )
 }
 
