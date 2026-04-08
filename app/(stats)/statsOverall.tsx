@@ -1,12 +1,14 @@
 import React from 'react'
 import { StyleSheet, Text, View } from 'react-native'
 
-export default function StatsScreen() {
+const StatsOverall = () => {
   return (
     <View>
-      <Text>StatsScreen</Text>
+      <Text>Overall</Text>
     </View>
   )
 }
+
+export default StatsOverall
 
 const styles = StyleSheet.create({})

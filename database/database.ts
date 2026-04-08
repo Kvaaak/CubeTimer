@@ -39,7 +39,7 @@ export const saveSolve = (timeStr: string, scramble: string) => {
 
   db.runSync(
     'INSERT INTO solves (time, scramble, penalty, created_at) VALUES (?, ?, ?, ?);',
-    [time, scramble, 'none', Date.now()]
+    [time, scramble, 'none', Date()]
   )
 }
 

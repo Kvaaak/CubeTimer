@@ -1,10 +1,14 @@
 import { ScrambleProvider } from "@/context/ScrambleContext";
 import { Stack } from "expo-router";
 
-export default function RootLayout() {
+const RootLayout = () => {
   return (
     <ScrambleProvider>
-      <Stack screenOptions={{headerShown: false}}/>
+      <Stack screenOptions={{headerShown: false}}>
+        <Stack.Screen name = "index" options={{headerShown: false}}/>
+        <Stack.Screen name = "(stats)" options={{headerShown: false}}/>
+      </Stack>
     </ScrambleProvider>
   )
 }
+export default RootLayout
