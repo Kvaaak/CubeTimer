@@ -7,7 +7,7 @@ const Header = () => {
   return (
         <View style={styles.card}>
           <Pressable 
-            onPress={()=> router.replace("/(stats)/statsScreen")} 
+            onPress={()=> router.push("/(stats)/statsList")} 
             style= {({ pressed }) => [
               styles.button,
               { opacity: pressed ? 0.5 : 1 }

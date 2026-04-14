@@ -129,24 +129,28 @@ const Timer = ({ fullscreen, setFullscreen, setBgColor }: Props) => {
     )
   }
 
+  const getLastSolve = () => {
+    return solves.find(s => s.id === lastSolveId) || getSolves().find(s => s.id === lastSolveId)
+  }
+
   const addTwo = () => {
     if (!lastSolveId) return
-    const last = solves.find(s => s.id === lastSolveId)
+    const last = getLastSolve()
     if (!last) return
-    const newPenalty: Penalty = penalty === '+2' ? 'none' : '+2'
-    applyPenalty(last, newPenalty)
+    const newPenalty: Penalty = last.penalty === '+2' ? 'none' : '+2'
+    applyPenalty(last.id, newPenalty)
   }
 
   const toggleDNF = () => {
     if (!lastSolveId) return
-    const last = solves.find(s => s.id === lastSolveId)
+    const last = getLastSolve()
     if (!last) return
-    const newPenalty: Penalty = penalty === 'DNF' ? 'none' : 'DNF'
-    applyPenalty(last, newPenalty)
+    const newPenalty: Penalty = last.penalty === 'DNF' ? 'none' : 'DNF'
+    applyPenalty(last.id, newPenalty)
   }
 
-  const applyPenalty = (solve: any, newPenalty: Penalty) => {
-    updateSolvePenalty(solve.id, newPenalty)
+  const applyPenalty = (solveId: number, newPenalty: Penalty) => {
+    updateSolvePenalty(solveId, newPenalty)
     refreshSolves()
     setPenalty(newPenalty)
   }
