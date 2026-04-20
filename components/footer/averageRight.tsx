@@ -1,13 +1,14 @@
+import { useEvent } from '@/context/EventContext'
 import { useSolves } from '@/hooks/useSolves'
 import { useStats } from '@/hooks/useStats'
 import React from 'react'
 import { Text, View } from 'react-native'
 
 const AverageRight = () => {
-  const { solves } = useSolves()
-  const { getAo, getMean } = useStats(solves)
+  const { solves, } = useSolves()
+  const { eventType } = useEvent()
+  const { getAo, getMean, count} = useStats(solves, eventType)
 
-  const count = solves.length
   const sizes = [200, 500, 1000] as const
   const mean = getMean(count)
 

@@ -1,11 +1,13 @@
+import { useEvent } from '@/context/EventContext'
 import { useSolves } from '@/hooks/useSolves'
 import { useStats } from '@/hooks/useStats'
 import React from 'react'
 import { Text, View } from 'react-native'
 
 const AverageLeft = () => {
-  const { bestTime, solves } = useSolves()
-  const { getAo } = useStats(solves)
+  const { solves } = useSolves()
+  const { eventType } = useEvent()
+  const { getAo, best } = useStats(solves, eventType)
 
   const sizes = [5, 12, 50, 100] as const
 
@@ -28,7 +30,7 @@ const AverageLeft = () => {
 
   return (
     <View>
-      <Text style={{color: '#fff'}}>PB: {bestTime !== null ? formatTime(bestTime) : '--'}</Text>
+      <Text style={{color: '#fff'}}>PB: {best !== null ? formatTime(best) : '--'}</Text>
       {sizes.map(n => {
         const value = aos[n]
 
