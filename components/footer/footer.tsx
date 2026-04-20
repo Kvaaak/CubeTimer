@@ -1,13 +1,15 @@
 import React from 'react'
 import { StyleSheet, View } from 'react-native'
-import Average from './average'
+import AverageLeft from './averageLeft'
+import AverageRight from './averageRight'
 import ScrambledCube from './scrambledCube'
 
 const Footer = () => {
   return (
     <View style={styles.card}>
-      <Average/>
+      <AverageLeft/>
       <ScrambledCube/>
+      <AverageRight/>
     </View>
   )
 }
