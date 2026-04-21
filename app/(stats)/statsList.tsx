@@ -1,3 +1,4 @@
+import StatsHeader from '@/components/header/statsHeader'
 import { EVENTS } from '@/config/events'
 import { useEvent } from '@/context/EventContext'
 import { deleteSolve, Solve, updateSolvePenalty } from '@/database/database'
@@ -80,27 +81,7 @@ const StatsList = () => {
 
   return (
     <SafeAreaView style={styles.container}>
-      <View style={styles.header}>
-        <Pressable
-          onPress={() => setOpenEventMenu(true)}
-          style={({ pressed }) => [
-            styles.eventButton,
-            { opacity: pressed ? 0.6 : 1 },
-          ]}
-        >
-          <Text style={{ color: '#eee', fontSize: 22 }}>{eventLabel}</Text>
-        </Pressable>
-
-        <Pressable
-          onPress={() => router.back()}
-          style={({ pressed }) => [
-            styles.button,
-            { opacity: pressed ? 0.5 : 1 },
-          ]}
-        >
-          <Text style={{ fontSize: 16, color: '#eee' }}>X</Text>
-        </Pressable>
-      </View>
+      <StatsHeader/>
 
       <Modal visible={openEventMenu} transparent animationType="fade">
         <Pressable
