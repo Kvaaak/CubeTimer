@@ -1,3 +1,4 @@
+import { EventType } from '@/config/events'
 import * as SQLite from 'expo-sqlite'
 
 export type Penalty = 'none' | '+2' | 'DNF'
@@ -7,6 +8,7 @@ export type Solve = {
   time: number
   scramble: string
   penalty: Penalty
+  eventType: EventType
   created_at: number
 }
 
@@ -34,6 +36,7 @@ export const initDB = () => {
       time REAL,
       scramble TEXT,
       penalty TEXT DEFAULT 'none',
+      eventType TEXT,
       created_at INTEGER
     );
   `)
@@ -49,12 +52,12 @@ const parseTime = (timeStr: string): number => {
   return parseFloat(timeStr)
 }
 
-export const saveSolve = (timeStr: string, scramble: string) => {
+export const saveSolve = (timeStr: string, scramble: string, eventType: EventType) => {
   const time = parseTime(timeStr)
 
   db.runSync(
-    'INSERT INTO solves (time, scramble, penalty, created_at) VALUES (?, ?, ?, ?);',
-    [time, scramble, 'none', Date.now()]
+    'INSERT INTO solves (time, scramble, penalty, eventType, created_at) VALUES (?, ?, ?, ?, ?);',
+    [time, scramble, 'none', eventType, Date.now()]
   )
   notifySolveChanges()
 }

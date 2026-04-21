@@ -1,11 +1,14 @@
+import { useEvent } from '@/context/EventContext'
 import { useSolves } from '@/hooks/useSolves'
 import { useStats } from '@/hooks/useStats'
+import { formatTime } from '@/utils/timeFormat'
 import React from 'react'
 import { Text, View } from 'react-native'
 
 const AverageLeft = () => {
-  const { bestTime, solves } = useSolves()
-  const { getAo } = useStats(solves)
+  const { solves } = useSolves()
+  const { eventType } = useEvent()
+  const { best, getAo } = useStats(solves, eventType)
 
   const sizes = [5, 12, 50, 100] as const
 
@@ -13,22 +16,9 @@ const AverageLeft = () => {
     sizes.map(n => [n, getAo(n)])
   ) as Record<number, number | null>
   
-  const formatTime = (timeSec: number) => {
-    const minutes = Math.floor(timeSec / 60)
-    const seconds = Math.floor(timeSec % 60)
-    const centiseconds = Math.floor((timeSec * 100) % 100)
-    if (minutes > 0) {
-      return `${minutes}:${seconds.toString().padStart(2, '0')}.${centiseconds
-        .toString()
-        .padStart(2, '0')}`
-    } else {
-      return `${seconds}.${centiseconds.toString().padStart(2, '0')}`
-    }
-  }
-
   return (
     <View>
-      <Text style={{color: '#fff'}}>PB: {bestTime !== null ? formatTime(bestTime) : '--'}</Text>
+      <Text style={{color: '#fff'}}>PB: {best !== null ? formatTime(best) : '--'}</Text>
       {sizes.map(n => {
         const value = aos[n]
 

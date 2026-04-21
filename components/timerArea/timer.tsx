@@ -1,6 +1,14 @@
+import { useEvent } from '@/context/EventContext'
 import { useScramble } from '@/context/ScrambleContext'
-import { deleteSolve, getSolves, saveSolve, updateSolvePenalty } from '@/database/database'
+import {
+  deleteSolve,
+  getSolves,
+  saveSolve,
+  updateSolvePenalty,
+} from '@/database/database'
 import { useSolves } from '@/hooks/useSolves'
+import { useStats } from '@/hooks/useStats'
+import { formatTime } from '@/utils/timeFormat'
 import React, { useEffect, useState } from 'react'
 import { Alert, Pressable, StyleSheet, Text, View } from 'react-native'
 import Toast from 'react-native-toast-message'
@@ -19,10 +27,15 @@ const Timer = ({ fullscreen, setFullscreen, setBgColor }: Props) => {
   const [running, setRunning] = useState(false)
   const [ready, setReady] = useState(false)
   const [currentTime, setCurrentTime] = useState(0)
+
   const { scramble, nextScramble } = useScramble()
+  const { eventType } = useEvent()
+
   const [lastSolveId, setLastSolveId] = useState<number | null>(null)
   const [penalty, setPenalty] = useState<Penalty>('none')
-  const { solves, bestTime, refreshSolves } = useSolves()
+
+  const { solves, refreshSolves } = useSolves()
+  const { best: eventBestTime } = useStats(solves, eventType)
 
   useEffect(() => {
     let frame: number
@@ -39,16 +52,7 @@ const Timer = ({ fullscreen, setFullscreen, setBgColor }: Props) => {
     return () => cancelAnimationFrame(frame)
   }, [running, startTime])
 
-  const formatTime = (ms: number) => {
-    const minutes = Math.floor(ms / 60000)
-    const seconds = Math.floor((ms % 60000) / 1000)
-    const centiseconds = Math.floor((ms % 1000) / 10)
-    return minutes > 0
-      ? `${minutes}:${seconds.toString().padStart(2, '0')}.${centiseconds
-          .toString()
-          .padStart(2, '0')}`
-      : `${seconds}.${centiseconds.toString().padStart(2, '0')}`
-  }
+  const formatTimeMs = (ms: number) => formatTime(ms / 1000)
 
   const prepareTimer = () => {
     setReady(true)
@@ -60,21 +64,29 @@ const Timer = ({ fullscreen, setFullscreen, setBgColor }: Props) => {
       setRunning(false)
       setDisplayTime(currentTime)
       setBgColor?.('#306291')
-      const timeStr = formatTime(currentTime)
-      saveSolve(timeStr, scramble)
 
-      const beforeBest = bestTime
+      const timeStr = formatTimeMs(currentTime)
+
+      saveSolve(timeStr, scramble, eventType)
+
+      const beforeBest = eventBestTime
+
       refreshSolves()
       const latest = getSolves()[0]
+
       setLastSolveId(latest?.id ?? null)
       setPenalty(latest?.penalty ?? 'none')
 
       if (latest) {
         let latestTime = latest.time
+
         if (latest.penalty === '+2') latestTime += 2
         if (latest.penalty === 'DNF') latestTime = Infinity
 
-        if (latestTime !== Infinity && (beforeBest === null || latestTime < beforeBest)) {
+        if (
+          latestTime !== Infinity &&
+          (beforeBest === null || latestTime < beforeBest)
+        ) {
           Toast.show({
             type: 'success',
             text1: 'New Best Time!',
@@ -89,6 +101,7 @@ const Timer = ({ fullscreen, setFullscreen, setBgColor }: Props) => {
       setFullscreen(false)
       nextScramble()
     }
+
     setBgColor?.('#913030')
   }
 
@@ -130,14 +143,20 @@ const Timer = ({ fullscreen, setFullscreen, setBgColor }: Props) => {
   }
 
   const getLastSolve = () => {
-    return solves.find(s => s.id === lastSolveId) || getSolves().find(s => s.id === lastSolveId)
+    return (
+      solves.find(s => s.id === lastSolveId) ||
+      getSolves().find(s => s.id === lastSolveId)
+    )
   }
 
   const addTwo = () => {
     if (!lastSolveId) return
     const last = getLastSolve()
     if (!last) return
-    const newPenalty: Penalty = last.penalty === '+2' ? 'none' : '+2'
+
+    const newPenalty: Penalty =
+      last.penalty === '+2' ? 'none' : '+2'
+
     applyPenalty(last.id, newPenalty)
   }
 
@@ -145,7 +164,10 @@ const Timer = ({ fullscreen, setFullscreen, setBgColor }: Props) => {
     if (!lastSolveId) return
     const last = getLastSolve()
     if (!last) return
-    const newPenalty: Penalty = last.penalty === 'DNF' ? 'none' : 'DNF'
+
+    const newPenalty: Penalty =
+      last.penalty === 'DNF' ? 'none' : 'DNF'
+
     applyPenalty(last.id, newPenalty)
   }
 
@@ -169,7 +191,7 @@ const Timer = ({ fullscreen, setFullscreen, setBgColor }: Props) => {
             { transform: [{ translateY: fullscreen ? 0 : -35 }] },
           ]}
         >
-          {formatTime(running ? currentTime : displayTime)}
+          {formatTimeMs(running ? currentTime : displayTime)}
         </Text>
       </Pressable>
 
@@ -181,29 +203,36 @@ const Timer = ({ fullscreen, setFullscreen, setBgColor }: Props) => {
               styles.buttonArea,
               {
                 opacity: pressed ? 0.5 : 1,
-                backgroundColor: penalty === '+2' ? '#309164' : '#204f7cb2',
+                backgroundColor:
+                  penalty === '+2' ? '#309164' : '#204f7cb2',
               },
             ]}
           >
             <Text style={styles.buttonText}>+2</Text>
           </Pressable>
+
           <Pressable
             onPress={toggleDNF}
             style={({ pressed }) => [
               styles.buttonArea,
               {
                 opacity: pressed ? 0.5 : 1,
-                backgroundColor: penalty === 'DNF' ? '#913030' : '#204f7cb2',
+                backgroundColor:
+                  penalty === 'DNF' ? '#913030' : '#204f7cb2',
               },
             ]}
           >
             <Text style={styles.buttonText}>DNF</Text>
           </Pressable>
+
           <Pressable
             onPress={deleteTime}
             style={({ pressed }) => [
               styles.buttonArea,
-              { opacity: pressed ? 0.5 : 1, backgroundColor: '#204f7cb2' },
+              { 
+                opacity: pressed ? 0.5 : 1,
+                backgroundColor: '#204f7cb2',
+              },
             ]}
           >
             <Text style={styles.buttonText}>X</Text>
@@ -239,7 +268,7 @@ const styles = StyleSheet.create({
   },
   buttonWrapper: {
     position: 'absolute',
-    bottom: 170,
+    bottom: 140,
     width: '100%',
     flexDirection: 'row',
     justifyContent: 'center',

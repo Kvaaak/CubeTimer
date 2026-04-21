@@ -1,31 +1,46 @@
-import { calculateAverage, calculateMean, getBestRollingAverage } from '@/utils/averages'
+import { EventType } from '@/config/events'
+import { Solve } from '@/database/database'
+import {
+  calculateAverage,
+  calculateMean,
+  getBestRollingAverage,
+  getSolvesByEvent,
+  normalizeSolve
+} from '@/utils/averages'
 import { useMemo } from 'react'
-import { SolveWithTime } from './useSolves'
 
-export const useStats = (solves: SolveWithTime[]) => {
-  const times = useMemo(
-    () => solves.map(s => s.timeSec),
-    [solves]
+export const useStats = (solves: Solve[], event: EventType) => {
+  const eventSolves = useMemo(
+    () => getSolvesByEvent(solves, event),
+    [solves, event]
   )
 
   const getAo = (n: number) => {
-    if (times.length < n) return null
-    return calculateAverage(times.slice(0, n))
+    if (eventSolves.length < n) return null
+    return calculateAverage(eventSolves.slice(0, n))
   }
 
   const getBestAo = (n: number) => {
-    if (times.length < n) return null
-    return getBestRollingAverage(times, n)
+    if (eventSolves.length < n) return null
+    return getBestRollingAverage(eventSolves, n)
   }
 
   const getMean = (n: number) => {
-    if (times.length < n) return null
-    return calculateMean(times.slice(0, n))
+    if (eventSolves.length < n) return null
+    return calculateMean(eventSolves.slice(0, n))
   }
+
+  const best = useMemo(() => {
+    const normalized = eventSolves.map(normalizeSolve)
+    const bestValue = normalized.length > 0 ? Math.min(...normalized) : Infinity
+    return bestValue === Infinity ? null : bestValue
+  }, [eventSolves])
 
   return {
     getAo,
     getBestAo,
-    getMean
+    getMean,
+    solveCount: eventSolves.length,
+    best,
   }
 }

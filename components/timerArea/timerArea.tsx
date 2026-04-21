@@ -34,11 +34,12 @@ const styles = StyleSheet.create({
   scramble: {
     alignItems: 'center',
     marginTop: 20,
+    minHeight: 60, // Kiinteä korkeus scramblelle
   },
   timer: {
     flex: 1,
     justifyContent: 'center',
-    alignItems: 'flex-end',
+    alignItems: 'center',
     width: '100%',
   },
 })

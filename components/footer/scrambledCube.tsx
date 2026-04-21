@@ -1,12 +1,8 @@
+import { useEvent } from '@/context/EventContext';
 import { useScramble } from '@/context/ScrambleContext';
 import React from 'react';
-import { View } from 'react-native';
+import { StyleSheet, View } from 'react-native';
 import { applyScramble, Cube } from 'react-rubiks-cube-utils';
-
-type Props = {
-  size?: number; // koko keskirivin laatalle
-  faceGap?: number; // väli facejen välillä
-};
 
 const colors: Record<string, string> = {
   W: '#fff',
@@ -17,20 +13,43 @@ const colors: Record<string, string> = {
   R: '#f00',
 };
 
-const ScrambledCube2D = ({ size = 9, faceGap = 2 }: Props) => {
+const ScrambledCube2D = () => {
+  const { eventType } = useEvent();
   const { scramble } = useScramble();
-  const cube: Cube = applyScramble({ type: '3x3', scramble });
+
+  // Event-kohtainen size, gap ja face size
+  const { cubeSize, cubeGap, faceSize } = React.useMemo(() => {
+    switch (eventType) {
+      case '222':
+        return { cubeSize: 16, cubeGap: 2, faceSize: 2 }; // 2x2 face
+      case '333':
+      case '333oh':
+        return { cubeSize: 11, cubeGap: 2, faceSize: 3 }; // 3x3 face
+      case '444':
+        return { cubeSize: 8, cubeGap: 3, faceSize: 4 }; // 4x4 face
+      default:
+        return { cubeSize: 11, cubeGap: 2, faceSize: 3 };
+    }
+  }, [eventType]);
+
+  const cube = React.useMemo(() => {
+    return applyScramble({ type: eventType, scramble });
+  }, [eventType, scramble]) as Cube | null;
+
+  if (!cube) return null;
+
   const { U, D, F, B, L, R } = cube;
+
   const renderFace = (face: string[][]) => (
     <View>
       {face.map((row, rIdx) => (
-        <View key={rIdx} style={{ flexDirection: 'row', marginBottom: rIdx < 2 ? 1 : 0 }}>
+        <View key={rIdx} style={{ flexDirection: 'row'}}>
           {row.map((sticker, cIdx) => (
             <View
               key={cIdx}
               style={{
-                width: size,
-                height: size,
+                width: cubeSize,
+                height: cubeSize,
                 backgroundColor: colors[sticker] || '#000',
                 borderWidth: 1,
                 borderColor: '#333',
@@ -42,36 +61,40 @@ const ScrambledCube2D = ({ size = 9, faceGap = 2 }: Props) => {
     </View>
   );
 
-  const emptyFace = () => (
-    <View style={{ width: size * 3, height: size * 3, marginRight: faceGap }} />
-  );
-
   return (
-    <View style={{ padding: 10 }}>
+    <View style={styles.container}>
       {/* Ylin rivi: U */}
-      <View style={{ flexDirection: 'row', marginBottom: faceGap }}>
-        {emptyFace()}
+      <View style={{ flexDirection: 'row', marginBottom: cubeGap, justifyContent: 'center' }}>
         {renderFace(U)}
+        <View style={{ width: cubeSize * faceSize, height: cubeSize * faceSize, marginRight: cubeGap }} />
       </View>
 
       {/* Keskirivi: L F R B */}
-      <View style={{ flexDirection: 'row', marginBottom: faceGap }}>
+      <View style={{ flexDirection: 'row', marginBottom: cubeGap, justifyContent: 'center' }}>
         {renderFace(L)}
-        <View style={{ width: faceGap }} />
+        <View style={{ width: cubeGap }} />
         {renderFace(F)}
-        <View style={{ width: faceGap }} />
+        <View style={{ width: cubeGap }} />
         {renderFace(R)}
-        <View style={{ width: faceGap }} />
+        <View style={{ width: cubeGap }} />
         {renderFace(B)}
       </View>
 
       {/* Alarivi: D */}
-      <View style={{ flexDirection: 'row' }}>
-        {emptyFace()}
+      <View style={{ flexDirection: 'row', justifyContent: 'center' }}>
         {renderFace(D)}
+        <View style={{ width: cubeSize * faceSize, height: cubeSize * faceSize, marginRight: cubeGap }} />
       </View>
     </View>
   );
 };
 
 export default ScrambledCube2D;
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+});
