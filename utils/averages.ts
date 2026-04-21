@@ -15,38 +15,31 @@ export const getSolvesByEvent = (
 }
 
 export const calculateMean = (solves: Solve[]): number | null => {
-  if (solves.length < 3) return null
-
   const times = solves
     .map(normalizeSolve)
-    .sort((a, b) => a - b)
+    .filter(t => t !== Infinity)
 
-  if (times.length < 3) return null
+  if (times.length < 1) return null
 
-  const trimmed = times.slice(1, -1)
-
-  if (trimmed.some(t => t === Infinity)) return null
-
-  return trimmed.reduce((a, b) => a + b, 0) / trimmed.length
+  return times.reduce((a, b) => a + b, 0) / times.length
 }
 
 export const calculateAverage = (solves: Solve[]): number | null => {
-  if (solves.length < 3) return null
+  const n = solves.length
+  if (n < 3) return null
 
   const times = solves
     .map(normalizeSolve)
     .sort((a, b) => a - b)
 
-  const dnfCount = times.filter(t => t === Infinity).length
+  const trimCount = Math.max(1, Math.ceil(n * 0.05))
 
-  if (dnfCount >= 2 && solves.length === 5) return null
-  if (dnfCount >= 3 && solves.length === 12) return null
-
-  const trimmed = times.slice(1, -1)
+  const trimmed = times.slice(trimCount, n - trimCount)
 
   if (trimmed.some(t => t === Infinity)) return null
 
-  return trimmed.reduce((a, b) => a + b, 0) / trimmed.length
+  const sum = trimmed.reduce((a, b) => a + b, 0)
+  return sum / trimmed.length
 }
 
 export const getRollingAverages = (solves: Solve[], n: number) => {
@@ -67,18 +60,4 @@ export const getBestRollingAverage = (solves: Solve[], n: number): number | null
   if (valid.length === 0) return null
 
   return Math.min(...valid)
-}
-
-export const getEventStats = (solves: Solve[], event: EventType) => {
-  const eventSolves = getSolvesByEvent(solves, event)
-
-  const normalized = eventSolves.map(normalizeSolve)
-  const bestValue = normalized.length > 0 ? Math.min(...normalized) : Infinity
-
-  return {
-    count: eventSolves.length,
-    ao5: calculateAverage(eventSolves.slice(-5)),
-    ao12: calculateAverage(eventSolves.slice(-12)),
-    best: bestValue === Infinity ? null : bestValue,
-  }
 }

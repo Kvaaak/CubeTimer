@@ -8,6 +8,7 @@ import {
 } from '@/database/database'
 import { useSolves } from '@/hooks/useSolves'
 import { useStats } from '@/hooks/useStats'
+import { formatTime } from '@/utils/timeFormat'
 import React, { useEffect, useState } from 'react'
 import { Alert, Pressable, StyleSheet, Text, View } from 'react-native'
 import Toast from 'react-native-toast-message'
@@ -51,17 +52,7 @@ const Timer = ({ fullscreen, setFullscreen, setBgColor }: Props) => {
     return () => cancelAnimationFrame(frame)
   }, [running, startTime])
 
-  const formatTime = (ms: number) => {
-    const minutes = Math.floor(ms / 60000)
-    const seconds = Math.floor((ms % 60000) / 1000)
-    const centiseconds = Math.floor((ms % 1000) / 10)
-
-    return minutes > 0
-      ? `${minutes}:${seconds.toString().padStart(2, '0')}.${centiseconds
-          .toString()
-          .padStart(2, '0')}`
-      : `${seconds}.${centiseconds.toString().padStart(2, '0')}`
-  }
+  const formatTimeMs = (ms: number) => formatTime(ms / 1000)
 
   const prepareTimer = () => {
     setReady(true)
@@ -74,7 +65,7 @@ const Timer = ({ fullscreen, setFullscreen, setBgColor }: Props) => {
       setDisplayTime(currentTime)
       setBgColor?.('#306291')
 
-      const timeStr = formatTime(currentTime)
+      const timeStr = formatTimeMs(currentTime)
 
       saveSolve(timeStr, scramble, eventType)
 
@@ -200,7 +191,7 @@ const Timer = ({ fullscreen, setFullscreen, setBgColor }: Props) => {
             { transform: [{ translateY: fullscreen ? 0 : -35 }] },
           ]}
         >
-          {formatTime(running ? currentTime : displayTime)}
+          {formatTimeMs(running ? currentTime : displayTime)}
         </Text>
       </Pressable>
 

@@ -2,6 +2,7 @@ import { EVENTS } from '@/config/events'
 import { useEvent } from '@/context/EventContext'
 import { deleteSolve, Solve, updateSolvePenalty } from '@/database/database'
 import { useSolves } from '@/hooks/useSolves'
+import { formatTime } from '@/utils/timeFormat'
 import { useRouter } from 'expo-router'
 import React, { useMemo, useState } from 'react'
 import { Alert, FlatList, Modal, Pressable, StyleSheet, Text, View } from 'react-native'
@@ -19,17 +20,7 @@ const formatSolveTime = (time: number, penalty: Solve['penalty']) => {
 
   const finalTime = penalty === '+2' ? time + 2 : time
 
-  const minutes = Math.floor(finalTime / 60)
-  const seconds = Math.floor(finalTime % 60)
-  const centiseconds = Math.floor((finalTime * 100) % 100)
-
-  const centiStr = centiseconds.toString().padStart(2, '0')
-
-  if (minutes > 0) {
-    return `${minutes}:${seconds.toString().padStart(2, '0')}.${centiStr}`
-  }
-
-  return `${seconds}.${centiStr}`
+  return formatTime(finalTime)
 }
 
 const StatsList = () => {

@@ -3,7 +3,6 @@ import { useEffect, useState } from 'react'
 
 export const useSolves = () => {
   const [solves, setSolves] = useState<Solve[]>([])
-  const [bestTime, setBestTime] = useState<number | null>(null)
 
   const refreshSolves = () => {
     const rawSolves = getSolves() as Solve[]
@@ -19,16 +18,6 @@ export const useSolves = () => {
       .sort((a, b) => b.created_at - a.created_at)
 
     setSolves(parsedSolves)
-
-    const validTimes = parsedSolves
-      .map(s => {
-        if (s.penalty === 'DNF') return Infinity
-        if (s.penalty === '+2') return s.time + 2
-        return s.time
-      })
-      .filter(t => t !== Infinity)
-
-    setBestTime(validTimes.length ? Math.min(...validTimes) : null)
   }
 
   useEffect(() => {
@@ -39,7 +28,6 @@ export const useSolves = () => {
 
   return {
     solves,
-    bestTime,
     refreshSolves,
   }
 }

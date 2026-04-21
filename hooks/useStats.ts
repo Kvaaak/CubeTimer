@@ -4,8 +4,8 @@ import {
   calculateAverage,
   calculateMean,
   getBestRollingAverage,
-  getEventStats as getEventStatsUtil,
   getSolvesByEvent,
+  normalizeSolve
 } from '@/utils/averages'
 import { useMemo } from 'react'
 
@@ -17,7 +17,7 @@ export const useStats = (solves: Solve[], event: EventType) => {
 
   const getAo = (n: number) => {
     if (eventSolves.length < n) return null
-    return calculateAverage(eventSolves.slice(-n))
+    return calculateAverage(eventSolves.slice(0, n))
   }
 
   const getBestAo = (n: number) => {
@@ -25,23 +25,22 @@ export const useStats = (solves: Solve[], event: EventType) => {
     return getBestRollingAverage(eventSolves, n)
   }
 
-  const eventStats = useMemo(
-    () => getEventStatsUtil(eventSolves, event),
-    [eventSolves, event]
-  )
-
   const getMean = (n: number) => {
     if (eventSolves.length < n) return null
-    return calculateMean(eventSolves.slice(-n))
+    return calculateMean(eventSolves.slice(0, n))
   }
+
+  const best = useMemo(() => {
+    const normalized = eventSolves.map(normalizeSolve)
+    const bestValue = normalized.length > 0 ? Math.min(...normalized) : Infinity
+    return bestValue === Infinity ? null : bestValue
+  }, [eventSolves])
 
   return {
     getAo,
     getBestAo,
     getMean,
-    count: eventSolves.length,
-    best: eventStats.best,
-    ao5: eventStats.ao5,
-    ao12: eventStats.ao12,
+    solveCount: eventSolves.length,
+    best,
   }
 }
