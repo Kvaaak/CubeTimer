@@ -42,5 +42,6 @@ export const useStats = (solves: Solve[], event: EventType) => {
     getMean,
     solveCount: eventSolves.length,
     best,
+    eventSolves
   }
 }

@@ -10,8 +10,7 @@ import { SafeAreaView } from 'react-native-safe-area-context'
 const StatsOverall = () => {
   const { solves } = useSolves()
   const { eventType } = useEvent()
-  const { best, getAo, getBestAo, getMean, solveCount } =
-    useStats(solves, eventType)
+  const { best, getAo, getBestAo, getMean, solveCount } = useStats(solves, eventType)
 
   const sizes = [5, 12, 50, 100, 200, 500, 1000, 2000, 5000] as const
 
