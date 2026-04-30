@@ -1,9 +1,9 @@
+import StatsHeader from '@/components/header/statsHeader'
 import { EVENTS } from '@/config/events'
 import { useEvent } from '@/context/EventContext'
 import { deleteSolve, Solve, updateSolvePenalty } from '@/database/database'
 import { useSolves } from '@/hooks/useSolves'
 import { formatTime } from '@/utils/timeFormat'
-import { useRouter } from 'expo-router'
 import React, { useMemo, useState } from 'react'
 import { Alert, FlatList, Modal, Pressable, StyleSheet, Text, View } from 'react-native'
 import { SafeAreaView } from 'react-native-safe-area-context'
@@ -26,13 +26,10 @@ const formatSolveTime = (time: number, penalty: Solve['penalty']) => {
 const StatsList = () => {
   const { solves, refreshSolves } = useSolves()
   const { eventType, setEventType } = useEvent()
-  const router = useRouter()
 
   const [visible, setVisible] = useState(false)
   const [openEventMenu, setOpenEventMenu] = useState(false)
   const [selectedSolve, setSelectedSolve] = useState<Solve | null>(null)
-
-  const eventLabel = EVENTS[eventType].label
 
   const eventSolves = useMemo(
     () => solves.filter((solve) => solve.eventType === eventType),
@@ -80,27 +77,7 @@ const StatsList = () => {
 
   return (
     <SafeAreaView style={styles.container}>
-      <View style={styles.header}>
-        <Pressable
-          onPress={() => setOpenEventMenu(true)}
-          style={({ pressed }) => [
-            styles.eventButton,
-            { opacity: pressed ? 0.6 : 1 },
-          ]}
-        >
-          <Text style={{ color: '#eee', fontSize: 22 }}>{eventLabel}</Text>
-        </Pressable>
-
-        <Pressable
-          onPress={() => router.back()}
-          style={({ pressed }) => [
-            styles.button,
-            { opacity: pressed ? 0.5 : 1 },
-          ]}
-        >
-          <Text style={{ fontSize: 16, color: '#eee' }}>X</Text>
-        </Pressable>
-      </View>
+      <StatsHeader/>
 
       <Modal visible={openEventMenu} transparent animationType="fade">
         <Pressable
@@ -239,14 +216,7 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#306291',
-  },
-  header: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    width: '100%',
     paddingHorizontal: 20,
-    height: 100,
   },
   timeText: {
     fontSize: 22,
@@ -264,7 +234,6 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     padding: 16,
     marginVertical: 8,
-    marginHorizontal: 16,
     borderRadius: 8,
     backgroundColor: 'rgb(206, 208, 211)',
   },
